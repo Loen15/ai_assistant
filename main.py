@@ -1,5 +1,5 @@
 from secret_constants import api_id, api_hash, self_id
-
+from constants import conclusion
 from pyrogram import Client
 
 from open_ai_api import request_to_gpt
@@ -11,6 +11,8 @@ app = Client("my_account", api_id, api_hash)
 def log(client, message):
   
   if message.from_user.is_self or (message.text is None and message.caption is None): 
+    if message.text ==conclusion:
+      app.send_message(self_id, f"@{message.from_user.username} согласен на консультацию")
     return
   
   msgs = convert_to_msgs(message.chat.id, message.text if message.text != None else message.caption, app)
@@ -22,7 +24,8 @@ def log(client, message):
     if msg.text is None and msg.caption != message.caption: return
   
   if 'choices' in res:
-    app.send_message(message.chat.id, res['choices'][0]['message']['content'])
+    answer = res['choices'][0]['message']['content']
+    app.send_message(message.chat.id, answer)
   else:
     try:
       app.send_message(self_id, res)
