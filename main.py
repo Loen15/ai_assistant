@@ -1,4 +1,4 @@
-from constants import api_id, api_hash, self_id
+from secret_constants import api_id, api_hash, self_id
 
 from pyrogram import Client
 

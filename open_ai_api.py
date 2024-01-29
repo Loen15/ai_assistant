@@ -1,5 +1,6 @@
 import requests
-from constants import url, openai_key
+from constants import url
+from secret_constants import openai_key
 
 def request_to_gpt(messages: [{
                       "role": str,

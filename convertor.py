@@ -1,5 +1,4 @@
 from pyrogram import Client
-import json
 from constants import prompt_for_ai, count_of_msgs
 
 
