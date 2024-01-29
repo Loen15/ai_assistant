@@ -1,0 +1,6 @@
+constants.py
+
+my_account*
+
+__pycache__/
+*.py[cod]
