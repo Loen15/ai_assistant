@@ -3,7 +3,7 @@
 собрать образ докера  
 ```docker build -t ai-assistant .```  
 запустить контейнер  
-```docker run --name my_assistant -e API_ID=1234 -e API_HASH=d3f3fd3s8s9 -e SELF_ID=321 -e OPENAI_KEY=sk-jV5H8hH7D -e PROXY=http://user:password@host:port ai-assistant ```  
+```docker run -it --restart=unless-stopped --name my_assistant -e API_ID=1234 -e API_HASH=d3f3fd3s8s9 -e SELF_ID=321 -e OPENAI_KEY=sk-jV5H8hH7D -e PROXY=http://user:password@host:port ai-assistant ```  
   
 # Переменные окружения (пример)
 данные аккаунта (отсюда -> https://my.telegram.org/auth)  
