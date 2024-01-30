@@ -1,9 +1,12 @@
-from secret_constants import api_id, api_hash, self_id
-from constants import conclusion
 from pyrogram import Client
-
+import os
+from constants import conclusion
 from open_ai_api import request_to_gpt
 from convertor import convert_to_msgs
+
+api_id = int(os.environ['API_ID'])
+api_hash = os.environ['API_HASH']
+self_id = int(os.environ['SELF_ID'])
 
 app = Client("my_account", api_id, api_hash)
 
@@ -11,7 +14,7 @@ app = Client("my_account", api_id, api_hash)
 def log(client, message):
   
   if message.from_user.is_self or (message.text is None and message.caption is None): 
-    if message.text ==conclusion:
+    if message.text == conclusion:
       app.send_message(self_id, f"@{message.from_user.username} согласен на консультацию")
     return
   
@@ -31,12 +34,12 @@ def log(client, message):
       app.send_message(self_id, res)
     except:
       if res.status_code == '403':
-        app.send_message(self_id, 'включи vpn на хосте')
+        app.send_message('me', 'включи vpn на хосте')
       else:
         if 'Sorry, you have been blocked' in str(res.content):
-          app.send_message(self_id, 'прокси заблокировали')  
+          app.send_message('me', 'прокси заблокировали')  
         else: 
-          app.send_message(self_id, 'непредвиденная ошибка')
+          app.send_message('me', 'непредвиденная ошибка')
         
 
 app.run()

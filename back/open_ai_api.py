@@ -1,7 +1,9 @@
 import requests
-import requests.auth
+import os
 from constants import url
-from secret_constants import openai_key, proxy
+
+openai_key = os.environ['OPENAI_KEY']
+proxy = os.environ['PROXY']
 
 def request_to_gpt(messages: [{
                       "role": str,
@@ -12,7 +14,9 @@ def request_to_gpt(messages: [{
 									"Content-Type": "application/json", 
 									"Authorization": "Bearer " + openai_key,
 								},
-								proxies = proxy,
+								proxies = {
+                  'https': proxy
+								},
 								json = 
 								{
 									"model": "gpt-3.5-turbo-1106", 
