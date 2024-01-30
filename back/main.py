@@ -33,6 +33,10 @@ def log(client, message):
       if res.status_code == '403':
         app.send_message(self_id, 'включи vpn на хосте')
       else:
-        app.send_message(self_id, 'непредвиденная ошибка')
+        if 'Sorry, you have been blocked' in str(res.content):
+          app.send_message(self_id, 'прокси заблокировали')  
+        else: 
+          app.send_message(self_id, 'непредвиденная ошибка')
+        
 
 app.run()
