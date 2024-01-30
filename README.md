@@ -14,6 +14,6 @@ id аккаунта куда будет направляться сообщен�
 ключ доступа к openAI API  
 ```-e OPENAI_KEY=sk-jV5H8hH7D```  
 прокси для доступа openAI в России  
-```-e PROXY = 'http://user:password@host:port'```
+```-e PROXY =http://user:password@host:port```
 
 
