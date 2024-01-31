@@ -14,7 +14,7 @@ app = Client("my_account", api_id, api_hash)
 def log(client, message):
   
   if message.from_user.is_self or (message.text is None and message.caption is None): 
-    if message.text == conclusion:
+    if  conclusion in message.text:
       app.send_message(self_id, f"@{message.from_user.username} согласен на консультацию")
     return
   
