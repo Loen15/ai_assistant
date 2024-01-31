@@ -1,6 +1,5 @@
 from pyrogram import Client
 import os
-from constants import conclusion
 from open_ai_api import request_to_gpt
 from convertor import convert_to_msgs
 
@@ -14,8 +13,6 @@ app = Client("my_account", api_id, api_hash)
 def log(client, message):
   
   if message.from_user.is_self or (message.text is None and message.caption is None): 
-    if  conclusion in message.text:
-      app.send_message(self_id, f"@{message.from_user.username} согласен на консультацию")
     return
   
   msgs = convert_to_msgs(message.chat.id, message.text if message.text != None else message.caption, app)
