@@ -5,10 +5,7 @@ from constants import url
 openai_key = os.environ['OPENAI_KEY']
 proxy = os.environ['PROXY']
 
-def request_to_gpt(messages: [{
-                      "role": str,
-                      "content": str
-                    }]):
+def request_to_gpt(messages: [{"role": str,"content": str}]):
   response = requests.post(url,
 								headers={
 									"Content-Type": "application/json", 
