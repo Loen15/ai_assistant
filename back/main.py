@@ -32,7 +32,7 @@ def log(client, message):
     msgs.append({"role": "user","content": text})
   
   # формируем диалог для GPT API
-  for msg in app.get_chat_history(message.chat.id, limit = count_of_msgs, offset = 1):
+  for msg in app.get_chat_history(message.chat.id, offset = 1, limit = count_of_msgs):
     if msg.text ==  None and msg.caption == None: continue
     text = msg.text if msg.text !=  None else msg.caption
     if msg.from_user.is_self:
@@ -51,8 +51,11 @@ def log(client, message):
   
   # отправляем ответ или пишем себе об ошибке  
   if 'choices' in res:
-    answer = res['choices'][0]['message']['content']
-    app.send_message(message.chat.id, answer)
+    answer = str(res['choices'][0]['message']['content'])
+    try:
+      app.send_message(message.chat.id, answer[: answer.find('?') + 1])
+    except:
+      app.send_message(message.chat.id, answer)
   else:
     try:
       app.send_message(self_id, res)
