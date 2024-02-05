@@ -4,3 +4,5 @@ my_account*
 
 __pycache__/
 *.py[cod]
+
+docker-compose.yml

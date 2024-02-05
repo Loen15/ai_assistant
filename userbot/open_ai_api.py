@@ -1,6 +1,7 @@
 import requests
 import os
 from constants import url
+#from secret_constants import openai_key, proxy
 
 openai_key = os.environ['OPENAI_KEY']
 proxy = os.environ['PROXY']

@@ -1,8 +1,11 @@
-from pyrogram import Client
+from pyrogram import Client, filters
 import os
 import time
+from pymongo import MongoClient
 from open_ai_api import request_to_gpt
 from constants import prompt_for_ai, count_of_msgs
+#from secret_constants import api_id, api_hash, self_id
+from user_list import UserList
 
 api_id = int(os.environ['API_ID'])
 api_hash = os.environ['API_HASH']
@@ -10,15 +13,20 @@ self_id = int(os.environ['SELF_ID'])
 
 app = Client("my_account", api_id, api_hash)
 
-@app.on_message()
+mongodb_host = os.environ.get('MONGO_HOST', 'mongo')
+mongodb_port = int(os.environ.get('MONGO_PORT', '27017'))
+client = MongoClient(mongodb_host, mongodb_port)
+user_list = UserList(client)
+
+@app.on_message(filters.text | filters.caption | filters.chat())
 def log(client, message):
   
   # игнорируем свои сообщения и сообщения без текста
-  if message.from_user.is_self or (message.text is None and message.caption is None): 
+  if message.from_user.is_self or user_list.is_banned(message.from_user.username): 
     return
   
   # добавил человечность, чтобы ответ приходил не сразу
-  time.sleep(10)
+  #time.sleep(10)
 
   # формируем начало диалога с GPT API из системной истории бота
   msgs = [{"role": "system","content": prompt_for_ai}]
