@@ -22,8 +22,10 @@ def log(client, message):
     return
   
   # добавил человечность, чтобы ответ приходил не сразу
-  time.sleep(10)
+  time.sleep(3)
+  app.read_chat_history(message.chat.id)
 
+  time.sleep(12)
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока   
   for msg in app.get_chat_history(message.chat.id, limit = 1):
