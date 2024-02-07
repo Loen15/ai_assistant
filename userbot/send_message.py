@@ -1,5 +1,6 @@
 from pyrogram import Client
 import os
+from redirect import redirect
 #from secret_constants import self_id
 
 self_id = int(os.environ['SELF_ID'])
@@ -9,7 +10,7 @@ def send_message(app: Client, username: str, res):
     res = res.json()
     answer = str(res['choices'][0]['message']['content'])
     if 'Ваша заявка принята' in  answer:
-      app.send_message(self_id,f'''@{username} готов воспользоваться Вашими услугами''')
+      redirect(app, username, self_id)
     try:
       app.send_message(username, answer[: answer.find('?') + 1])
     except:

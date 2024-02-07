@@ -56,7 +56,7 @@ def job():
     delta = datetime.datetime.now() - dialog.top_message.date
     # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение позднее 12 часов
     if dialog.top_message.from_user.is_self and 'Ваша заявка принята' not in dialog.top_message.text:
-      if delta.total_seconds() // 60 > 4 and delta.total_seconds() // 3600 < 12:
+      if delta.total_seconds() // 3600 > 4 and delta.total_seconds() // 3600 < 12:
         for msg in app.get_chat_history(dialog.chat.id, limit=1, offset=1):
           if not msg.from_user.is_self:
             msgs = generate_chat(app, 
