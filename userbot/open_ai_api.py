@@ -1,6 +1,7 @@
 import requests
 import os
 from constants import url
+#from secret_constants import openai_key, proxy
 
 openai_key = os.environ['OPENAI_KEY']
 proxy = os.environ['PROXY']
@@ -20,7 +21,4 @@ def request_to_gpt(messages: [{"role": str,"content": str}]):
 									"messages": messages, 
 									"max_tokens": 200
 								})
-  try:
-    return response.json()
-  except:
-    return response
+  return response

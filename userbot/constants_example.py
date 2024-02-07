@@ -4,3 +4,5 @@ url = 'https://api.openai.com/v1/chat/completions'
 count_of_msgs = 1
 # легенда для бота
 prompt_for_ai =  'ты ассистент, помогай'
+# легенда для напоминалки о себе
+promt_for_ai_reminder = 'ты ассистент, клиент пересатл отвечать, напомни о себе'
