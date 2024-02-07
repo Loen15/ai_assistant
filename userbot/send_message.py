@@ -4,16 +4,21 @@ import os
 
 self_id = int(os.environ['SELF_ID'])
 
-def send_message(app: Client, chat_id: int, res):
+def send_message(app: Client, username: str, res):
   try:    
     res = res.json()
     answer = str(res['choices'][0]['message']['content'])
+    if 'Ваша заявка принята' in  answer:
+      app.send_message(self_id,f'''@{username} готов воспользоваться Вашими услугами''')
     try:
-      app.send_message(chat_id, answer[: answer.find('?') + 1])
+      app.send_message(username, answer[: answer.find('?') + 1])
     except:
-      app.send_message(chat_id, answer)
+      app.send_message(username, answer)
   except:
     try:
-      app.send_message(self_id, str(res.content))
+      app.send_message(self_id, res)  
     except:
-      app.send_message(self_id, 'непредвиденная ошибка')    
+      try:
+        app.send_message(self_id, str(res.content))
+      except:  
+        app.send_message(self_id, 'непредвиденная ошибка')    

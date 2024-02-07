@@ -19,6 +19,6 @@ def request_to_gpt(messages: [{"role": str,"content": str}]):
 								{
 									"model": "gpt-3.5-turbo-1106", 
 									"messages": messages, 
-									"max_tokens": 200
+									"max_tokens": 250
 								})
   return response
