@@ -6,6 +6,6 @@ COPY ./userbot .
 RUN apt update
 RUN pip install --upgrade pip pyrogram requests tgcrypto apscheduler
 
-ENV # ENV API_ID=... API_HASH=... SELF_ID=... OPENAI_KEY=... PROXY=...
+ENV API_ID=... API_HASH=... SELF_ID=... OPENAI_KEY=... PROXY=...
 
 ENTRYPOINT ["python", "main.py"]
