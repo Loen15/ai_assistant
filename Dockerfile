@@ -1,7 +1,7 @@
 FROM python:3.10.0
 
-WORKDIR /back
-COPY ./back .
+WORKDIR /userbot
+COPY ./userbot .
 
 RUN apt update
 RUN pip install --upgrade pip pyrogram requests tgcrypto
