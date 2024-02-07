@@ -4,6 +4,6 @@ WORKDIR /userbot
 COPY ./userbot .
 
 RUN apt update
-RUN pip install --upgrade pip pyrogram requests tgcrypto
+RUN pip install --upgrade pip pyrogram requests tgcrypto apscheduler
 
 ENTRYPOINT ["python", "main.py"]
