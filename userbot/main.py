@@ -55,7 +55,7 @@ def job():
   for dialog in app.get_dialogs():
     delta = datetime.datetime.now() - dialog.top_message.date
     # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение позднее 12 часов
-    if dialog.top_message.from_user.is_self and 'Ваша заявка принята' not in dialog.top_message.text:
+    if dialog.top_message.from_user.is_self and 'в течение дня' not in dialog.top_message.text:
       if delta.total_seconds() // 3600 > 4 and delta.total_seconds() // 3600 < 12:
         for msg in app.get_chat_history(dialog.chat.id, limit=1, offset=1):
           if not msg.from_user.is_self:
@@ -72,7 +72,7 @@ def job():
             send_message(app, dialog.chat.username, res)
     # если в течении 5 минут мы не написали человеку то пишем
     else:
-      if not dialog.top_message.from_user.is_self and delta.total_seconds() // 60 > 5:
+      if not dialog.top_message.from_user.is_self and delta.total_seconds() // 60 > 5 and delta.total_seconds() // 3600 < 24:
         msgs = generate_chat(app, 
                              dialog.top_message.text if dialog.top_message.text is not None else dialog.top_message.caption, 
                              dialog.chat.id, 
