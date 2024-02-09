@@ -10,8 +10,6 @@ def send_message(app: Client, username: str, res):
   try:    
     res = res.json()
     answer = str(res['choices'][0]['message']['content'])
-    if 'в течение дня' in  answer:
-      redirect(app, username, self_id)
     try:
       app.send_message(username, answer[: answer.find('?') + 1])
     except:
@@ -19,10 +17,12 @@ def send_message(app: Client, username: str, res):
   except:
     app.send_message(self_id, f'''В чате с @{username} возникла ошибка''')
     try:
-      app.send_message('me', f'''@{username} {datetime.now()}: {res}''')  
+      app.send_message('me', f'''@{username} {datetime.datetime.now()}: {res}''')  
     except:
       try:
-        app.send_message('me', f'''@{username} {datetime.now()}: {str(res.content)}''')  
+        app.send_message('me', f'''@{username} {datetime.datetime.now()}: {str(res.content)}''')  
       except:
-        app.send_message('me', f'''@{username} {datetime.now()}: 'непредвиденная ошибка''')
+        app.send_message('me', f'''@{username} {datetime.datetime.now()}: 'непредвиденная ошибка''')
+  if 'в течение дня' in  answer:
+      redirect(app, username, self_id)
    
