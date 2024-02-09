@@ -23,6 +23,6 @@ def send_message(app: Client, username: str, res):
         app.send_message('me', f'''@{username} {datetime.datetime.now()}: {str(res.content)}''')  
       except:
         app.send_message('me', f'''@{username} {datetime.datetime.now()}: 'непредвиденная ошибка''')
-  if 'в течение дня' in  answer:
+  if 'в течение дня' in  answer or 'заявка принята' in answer:
       redirect(app, username, self_id)
    
