@@ -1,4 +1,5 @@
 from pyrogram import Client
+from pyrogram.raw import functions
 import os
 import time
 from open_ai_api import request_to_gpt
@@ -53,6 +54,7 @@ def log(client, message):
 
 
 def job():
+  app.invoke(functions.account.UpdateStatus(offline=False))
   for dialog in app.get_dialogs():
     delta = datetime.datetime.now() - dialog.top_message.date
     if delta.total_seconds() // 3600 > 12:
