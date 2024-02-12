@@ -3,8 +3,9 @@ from constants import count_of_msgs
 
 
 
-
+# функция генерирующая чат для GPT
 def generate_chat(app: Client, text: str, chat_id: int, prompt_for_ai: str, is_user: bool):
+  # формируем список json обьектов для GPT
   msgs = [{"role": "system","content": prompt_for_ai}]
   msgs.append({"role": "user" if is_user else "assistant","content": text})
   for msg in app.get_chat_history(chat_id, offset = 1, limit = count_of_msgs):

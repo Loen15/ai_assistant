@@ -6,6 +6,7 @@ import datetime
 
 self_id = int(os.environ['SELF_ID'])
 
+# функция парсинга и отправки сообщения от GPT или отправки уведомления Вам о том, что что-то пошло не так, в таком случае сам ответ от GPT отправится в избранные в аккаунте бота
 def send_message(app: Client, username: str, res):
   try:    
     res = res.json()
@@ -23,6 +24,7 @@ def send_message(app: Client, username: str, res):
         app.send_message('me', f'''@{username} {datetime.datetime.now()}: {str(res.content)}''')  
       except:
         app.send_message('me', f'''@{username} {datetime.datetime.now()}: 'непредвиденная ошибка''')
+  # если бот написал {conclusion} (или как-то его перефразировал), то докладываем Вам об этом
   if 'в течение дня' in  answer or 'заявка принята' in answer:
       redirect(app, username, self_id)
    

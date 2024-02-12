@@ -14,8 +14,10 @@ api_id = int(os.environ['API_ID'])
 api_hash = os.environ['API_HASH']
 print(datetime.datetime.now())
 
+# авторизуемся в telegram
 app = Client("my_account", api_id, api_hash)
 
+# триггер, вызывающий функцию log когда приходит сообщение
 @app.on_message()
 def log(client, message):
   
@@ -23,11 +25,11 @@ def log(client, message):
   if message.from_user.is_self or (message.text == None and message.caption == None): 
     return
   
-  # добавил человечность, чтобы ответ приходил не сразу
+  # добавил человечность, чтобы ответ приходил не сразу 
   time.sleep(3)
-  app.read_chat_history(message.chat.id)
-
+  app.read_chat_history(message.chat.id) # и дополнительно отмечаем сообщение прочитанным через 3 секунды
   time.sleep(12)
+
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока   
   for msg in app.get_chat_history(message.chat.id, limit = 1):
@@ -54,35 +56,54 @@ def log(client, message):
 
 
 def job():
+  # не пишем с 12 ночи до 7 утра (касается напоминай о себе и проеба в коде, когда бот не ответил самостоятельно)
+  if datetime.datetime.now.time() < datetime.time(7,0,0,0):
+    return
+  
+  # ставим статус онлайн
   app.invoke(functions.account.UpdateStatus(offline=False))
+  
+  # рассматриваем все диалоги
   for dialog in app.get_dialogs():
+    # считаем сколько времени прошло и если болше 12 часов, то игнорируем данные диалоги
     delta = datetime.datetime.now() - dialog.top_message.date
     if delta.total_seconds() // 3600 > 12:
       continue
 
-    # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение позднее 12 часов
+    # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение {conclusion}
     if dialog.top_message.from_user.is_self and 'в течение дня' not in dialog.top_message.text and 'заявка принята' not in dialog.top_message.text:
       if delta.total_seconds() // 3600 > 4:
+        break_flag = False
+        
+        # Проверяем напоминал ли бот о себе
         for msg in app.get_chat_history(dialog.chat.id, limit=1, offset=1):
-          if not msg.from_user.is_self:
-            content = ''
-            for msg in app.get_chat_history(dialog.chat.id):   
-              if msg.from_user.is_self:
-                if msg.text == None and msg.caption == None:
-                  continue
-                content += 'а: ' + msg.caption if msg.text == None else msg.text + '\n'
-              else:
-                if msg.text == None and msg.caption == None:
-                  continue
-                content += 'к: ' + msg.caption if msg.text == None else msg.text + '\n'
+          if msg.from_user.is_self:
+            break_flag = True
+        if break_flag: continue
 
-            msgs = [{"role": "system","content": prompt_for_ai_without_conlusion},{"role": "user","content": content}]
-            res = request_to_gpt(msgs)
-            for msg in app.get_chat_history(dialog.chat.id, limit = 1):
-              if msg.caption == None and msg.text != dialog.top_message.text: return
-              if msg.text == None and msg.caption != dialog.top_message.caption: return
-    
-            send_message(app, dialog.chat.username, res)
+        content = ''
+
+        # рассматриваем все сообщения в отдельном чате
+        for msg in app.get_chat_history(dialog.chat.id):
+          # не напоминаем о себе если уже связывали с человеком 
+          if 'в течение дня' in msg.text or 'заявка принята' in msg.text:
+            break_flag = True
+            break 
+          # формируем диалог для GPT
+          if msg.from_user.is_self:
+            if msg.text == None and msg.caption == None:
+              continue
+            content += 'а: ' + msg.caption if msg.text == None else msg.text + '\n'
+          else:
+            if msg.text == None and msg.caption == None:
+              continue
+            content += 'к: ' + msg.caption if msg.text == None else msg.text + '\n'
+        # если уже связывали с человеком то выходим из этого чата
+        if break_flag: continue
+        # отправляем запрос к GPT и пишем ответ
+        msgs = [{"role": "system","content": prompt_for_ai_without_conlusion},{"role": "user","content": content}]
+        res = request_to_gpt(msgs)
+        send_message(app, dialog.chat.username, res)
     # если в течении 5 минут мы не написали человеку то пишем
     else:
       if not dialog.top_message.from_user.is_self and delta.total_seconds() // 60 > 5:
@@ -99,10 +120,10 @@ def job():
         send_message(app, dialog.chat.username, res)  
 
                               
-
+# настраиваем планировщик, чтобы он каждые 45 минут запускал функцию job
 scheduler = BackgroundScheduler()
 scheduler.add_job(job, "interval", minutes = 45)
 
-
+# запускаем планировщик и бота
 scheduler.start()      
 app.run()

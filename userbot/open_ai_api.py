@@ -6,6 +6,7 @@ from constants import url
 openai_key = os.environ['OPENAI_KEY']
 proxy = os.environ['PROXY']
 
+# функция, отправляющая POST запрос на сайт OpenAI
 def request_to_gpt(messages):
   response = requests.post(url,
 								headers={
