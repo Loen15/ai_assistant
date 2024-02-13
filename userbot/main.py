@@ -31,7 +31,7 @@ def log(client, message):
   time.sleep(1)
   app.send_chat_action(message.chat.id, enums.ChatAction.TYPING) # делаем вид что пишем
   time.sleep(12)
-
+  app.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока   
   for msg in app.get_chat_history(message.chat.id, limit = 1):
