@@ -1,4 +1,4 @@
-from pyrogram import Client
+from pyrogram import Client, enums
 from pyrogram.raw import functions
 import os
 import time
@@ -28,6 +28,7 @@ def log(client, message):
   # добавил человечность, чтобы ответ приходил не сразу 
   time.sleep(3)
   app.read_chat_history(message.chat.id) # и дополнительно отмечаем сообщение прочитанным через 3 секунды
+  app.send_chat_action(message.chat.id, enums.ChatAction.TYPING) # делаем вид что пишем
   time.sleep(12)
 
   # проверяем не написал ли клиент что-то еще, 
@@ -51,6 +52,8 @@ def log(client, message):
     if msg.caption == None and msg.text != message.text: return
     if msg.text == None and msg.caption != message.caption: return
   
+  #перестаем писать
+  app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL)
   # отправляем ответ или пишем себе об ошибке  
   send_message(app, message.chat.username, res)  
 
@@ -65,9 +68,9 @@ def job():
   
   # рассматриваем все диалоги
   for dialog in app.get_dialogs():
-    # считаем сколько времени прошло и если болше 12 часов, то игнорируем данные диалоги
+    # считаем сколько времени прошло и если болше 13 часов, то игнорируем данные диалоги (время ночью 7 часов, плюс 4 часа задержки)
     delta = datetime.datetime.now() - dialog.top_message.date
-    if delta.total_seconds() // 3600 > 12:
+    if delta.total_seconds() // 3600 > 13:
       continue
 
     # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение {conclusion}
