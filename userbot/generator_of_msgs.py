@@ -1,5 +1,4 @@
 from pyrogram import Client
-from constants import count_of_msgs
 
 
 
@@ -8,7 +7,7 @@ def generate_chat(app: Client, text: str, chat_id: int, prompt_for_ai: str, is_u
   # формируем список json обьектов для GPT
   msgs = [{"role": "system","content": prompt_for_ai}]
   msgs.append({"role": "user" if is_user else "assistant","content": text})
-  for msg in app.get_chat_history(chat_id, offset = 1, limit = count_of_msgs):
+  for msg in app.get_chat_history(chat_id, offset = 1):
     if msg.text ==  None and msg.caption == None: continue
     text = msg.text if msg.text !=  None else msg.caption
     if msg.from_user.is_self:
