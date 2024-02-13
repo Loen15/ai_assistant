@@ -34,8 +34,12 @@ def log(client, message):
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока   
   for msg in app.get_chat_history(message.chat.id, limit = 1):
-    if msg.caption == None and msg.text != message.text: return
-    if msg.text == None and msg.caption != message.caption: return 
+    if msg.caption == None and msg.text != message.text:  
+      app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
+      return
+    if msg.text == None and msg.caption != message.caption:  
+      app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
+      return 
   
   # формируем начало диалога с GPT API из системной истории бота
   msgs = generate_chat(app, 
@@ -49,8 +53,12 @@ def log(client, message):
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока  
   for msg in app.get_chat_history(message.chat.id, limit = 1):
-    if msg.caption == None and msg.text != message.text: return
-    if msg.text == None and msg.caption != message.caption: return
+    if msg.caption == None and msg.text != message.text: 
+      app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
+      return
+    if msg.text == None and msg.caption != message.caption:  
+      app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
+      return
   
   #перестаем писать
   app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL)
