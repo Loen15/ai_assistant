@@ -26,8 +26,9 @@ def log(client, message):
     return
   
   # добавил человечность, чтобы ответ приходил не сразу 
-  time.sleep(3)
+  time.sleep(2)
   app.read_chat_history(message.chat.id) # и дополнительно отмечаем сообщение прочитанным через 3 секунды
+  time.sleep(1)
   app.send_chat_action(message.chat.id, enums.ChatAction.TYPING) # делаем вид что пишем
   time.sleep(12)
 
