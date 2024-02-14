@@ -69,7 +69,7 @@ def log(client, message):
 
 def job():
   # не пишем с 12 ночи до 7 утра (касается напоминай о себе и проеба в коде, когда бот не ответил самостоятельно)
-  if datetime.datetime.now.time() < datetime.time(7,0,0,0):
+  if datetime.datetime.now().time() < datetime.time(7,0,0,0):
     return
   
   # ставим статус онлайн
