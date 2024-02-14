@@ -8,7 +8,7 @@ proxy = os.environ['PROXY']
 
 # функция, отправляющая POST запрос на сайт OpenAI
 def request_to_gpt(messages):
-  response = requests.post(url,
+	response = requests.post(url,
 								headers={
 									"Content-Type": "application/json", 
 									"Authorization": "Bearer " + openai_key,
@@ -21,4 +21,4 @@ def request_to_gpt(messages):
 									"model": "gpt-3.5-turbo-1106", 
 									"messages": messages
 								})
-  return response
+	return response

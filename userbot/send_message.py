@@ -12,7 +12,8 @@ def send_message(app: Client, username: str, res):
     res = res.json()
     answer = str(res['choices'][0]['message']['content'])
     try:
-      app.send_message(username, answer[: answer.find('?') + 1])
+      # если бот тупой и не понимает чот надо писать по одному вопросу и не нумеровать их (он тупой, так что эта строка нужна)
+      app.send_message(username, answer[: answer.find('?') + 1].replace("1. ", ""))
     except:
       app.send_message(username, answer)
   except:
@@ -27,4 +28,7 @@ def send_message(app: Client, username: str, res):
   # если бот написал {conclusion} (или как-то его перефразировал), то докладываем Вам об этом
   if 'в течение дня' in  answer or 'заявка принята' in answer:
       redirect(app, username, self_id)
+  
+  # печатает затрачиваемые токены
+  #print(res['usage'])
    

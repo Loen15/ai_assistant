@@ -6,13 +6,12 @@ from open_ai_api import request_to_gpt
 from generator_of_msgs import generate_chat
 from send_message import send_message
 from constants import prompt_for_ai, prompt_for_ai_without_conlusion
-#from secret_constants import api_id, api_hash
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
+#from secret_constants import api_id, api_hash
 
 api_id = int(os.environ['API_ID'])
 api_hash = os.environ['API_HASH']
-print(datetime.datetime.now())
 
 # авторизуемся в telegram
 app = Client("my_account", api_id, api_hash)
