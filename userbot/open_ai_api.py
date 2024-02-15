@@ -18,7 +18,9 @@ def request_to_gpt(messages):
 								},
 								json = 
 								{
-									"model": "gpt-3.5-turbo-1106", 
-									"messages": messages
+									"model": "gpt-3.5-turbo-0125", 
+									"messages": messages,
+									"temperature": 0,
+									"max_tokens": 1000
 								})
 	return response
