@@ -74,9 +74,6 @@ def job():
   if datetime.datetime.now().time() < datetime.time(7,0,0,0):
     return
   
-  # ставим статус онлайн
-  app.invoke(functions.account.UpdateStatus(offline=False))
-  
   # рассматриваем все диалоги
   for dialog in app.get_dialogs():
     # считаем сколько времени прошло и если болше 13 часов, то игнорируем данные диалоги (время ночью 7 часов, плюс 4 часа задержки)
