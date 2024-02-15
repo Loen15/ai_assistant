@@ -1,6 +1,7 @@
 from pyrogram import Client
 import os
 from redirect import redirect
+from conclusion_checker import is_conclusion
 import datetime
 #from secret_constants import self_id
 
@@ -26,7 +27,7 @@ def send_message(app: Client, username: str, res):
       except:
         app.send_message('me', f'''@{username} {datetime.datetime.now()}: 'непредвиденная ошибка''')
   # если бот написал {conclusion} (или как-то его перефразировал), то докладываем Вам об этом
-  if 'в течение дня' in  answer or 'заявка принята' in answer:
+  if is_conclusion(answer):
       redirect(app, username, self_id)
   
   # печатает затрачиваемые токены

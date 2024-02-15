@@ -5,6 +5,7 @@ import time
 from open_ai_api import request_to_gpt
 from generator_of_msgs import generate_chat
 from send_message import send_message
+from conclusion_checker import is_conclusion
 from constants import prompt_for_ai, prompt_for_ai_without_conlusion
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -84,7 +85,7 @@ def job():
       continue
 
     # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение {conclusion}
-    if dialog.top_message.from_user.is_self and 'в течение дня' not in dialog.top_message.text and 'заявка принята' not in dialog.top_message.text:
+    if dialog.top_message.from_user.is_self and not is_conclusion(dialog.top_message.text):
       if delta.total_seconds() // 3600 > 4:
         break_flag = False
         
@@ -99,7 +100,7 @@ def job():
         # рассматриваем все сообщения в отдельном чате
         for msg in app.get_chat_history(dialog.chat.id):
           # не напоминаем о себе если уже связывали с человеком 
-          if 'в течение дня' in msg.text or 'заявка принята' in msg.text:
+          if is_conclusion(msg.text):
             break_flag = True
             break 
           # формируем диалог для GPT
