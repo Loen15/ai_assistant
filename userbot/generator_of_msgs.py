@@ -14,5 +14,5 @@ def generate_chat(app: Client, text: str, chat_id: int, prompt_for_ai: str, is_u
       msgs.insert(0,{"role": "assistant","content": text})
     else:
       msgs.insert(0,{"role": "user","content": text})
-  msgs.insert(-50,{"role": "system","content": prompt_for_ai})
+  msgs.insert(-20,{"role": "system","content": prompt_for_ai})
   return msgs
