@@ -1,4 +1,4 @@
-from pyrogram import Client, enums
+from pyrogram import Client, enums, filters
 import os
 import time
 from open_ai_api import request_to_gpt
@@ -15,12 +15,31 @@ api_hash = os.environ['API_HASH']
 # авторизуемся в telegram
 app = Client("my_account", api_id, api_hash)
 
-# триггер, вызывающий функцию log когда приходит сообщение
+# ответ на аудио
+@app.on_message(filters.voice & filters.incoming)
+def log(client, message):
+    app.read_chat_history(message.chat.id)
+    app.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
+    time.sleep(3)
+    msg = app.send_message(message.chat.id, 'Прошу прощения, но у меня сейчас нет возможности прослушать Ваше сообщение, не могли бы Вы написать то о чем говорили в аудио?')
+    app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL)
+    app.delete_messages(message.chat.id, msg.id, revoke=False)
+
+# ответ на видео
+@app.on_message(filters.video_note & filters.incoming)
+def log(client, message):
+    app.read_chat_history(message.chat.id)
+    app.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
+    time.sleep(3)
+    msg = app.send_message(message.chat.id, 'Прошу прощения, но у меня сейчас нет возможности просмотреть Ваше сообщение, не могли бы Вы написать то о чем говорили в видео?')
+    app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL)
+    app.delete_messages(message.chat.id, msg.id, revoke=False)
+
+# ответ на сообщения
 @app.on_message()
 def log(client, message):
-  
-  # игнорируем свои сообщения и сообщения без текста
-  if message.from_user.is_self or (message.text == None and message.caption == None): 
+  # игнорируем свои сообщения (не в фильтре так как ловит сообщения в избранном)
+  if message.from_user.is_self: 
     return
   
   # добавил человечность, чтобы ответ приходил не сразу 
@@ -35,16 +54,13 @@ def log(client, message):
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока   
   for msg in app.get_chat_history(message.chat.id, limit = 1):
-    if msg.caption == None and msg.text != message.text:  
+    if msg.id != message.id:  
       app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
       return
-    if msg.text == None and msg.caption != message.caption:  
-      app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
-      return 
   
   # формируем начало диалога с GPT API из системной истории бота
   msgs = generate_chat(app, 
-                       message.text if message.text != None else message.caption, 
+                       message.text if message.text != None else message.caption if message.caption != None else 'Отправил Вам документы', 
                        message.chat.id, 
                        prompt_for_ai, True)
 
@@ -54,10 +70,7 @@ def log(client, message):
   # проверяем не написал ли клиент что-то еще, 
   # если писал, то выходим из этого потока  
   for msg in app.get_chat_history(message.chat.id, limit = 1):
-    if msg.caption == None and msg.text != message.text: 
-      app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
-      return
-    if msg.text == None and msg.caption != message.caption:  
+    if msg.id != message.id:  
       app.send_chat_action(message.chat.id, enums.ChatAction.CANCEL) 
       return
   
@@ -76,55 +89,49 @@ def job():
   for dialog in app.get_dialogs():
     # считаем сколько времени прошло и если болше 13 часов, то игнорируем данные диалоги (время ночью 7 часов, плюс 4 часа задержки)
     delta = datetime.datetime.now() - dialog.top_message.date
-    if delta.total_seconds() // 3600 > 13:
+    if delta.total_seconds() // 3600 > 14:
       continue
 
     # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение {conclusion}
     if dialog.top_message.from_user.is_self and not is_conclusion(dialog.top_message.text):
-      if delta.total_seconds() // 3600 > 4:
-        break_flag = False
+      if delta.total_seconds() // 3600 < 4:
+        continue
+      break_flag = False
         
-        # Проверяем напоминал ли бот о себе
-        for msg in app.get_chat_history(dialog.chat.id, limit=1, offset=1):
-          if msg.from_user.is_self:
-            break_flag = True
-        if break_flag: continue
+      # Проверяем напоминал ли бот о себе
+      for msg in app.get_chat_history(dialog.chat.id, limit=1, offset=1):
+        if msg.from_user.is_self:
+          break_flag = True
+      if break_flag: continue
 
-        content = ''
+      content = ''
 
-        # рассматриваем все сообщения в отдельном чате
-        for msg in app.get_chat_history(dialog.chat.id):
-          # не напоминаем о себе если уже связывали с человеком 
-          if is_conclusion(msg.text):
-            break_flag = True
-            break 
-          # формируем диалог для GPT
-          if msg.from_user.is_self:
-            if msg.text == None and msg.caption == None:
-              continue
-            content += 'а: ' + msg.caption if msg.text == None else msg.text + '\n'
-          else:
-            if msg.text == None and msg.caption == None:
-              continue
-            content += 'к: ' + msg.caption if msg.text == None else msg.text + '\n'
-        # если уже связывали с человеком то выходим из этого чата
-        if break_flag: continue
-        # отправляем запрос к GPT и пишем ответ
-        msgs = [{"role": "system","content": prompt_for_ai_without_conlusion},{"role": "user","content": content}]
-        res = request_to_gpt(msgs)
-        send_message(app, dialog.chat.username, res)
+      # рассматриваем все сообщения в отдельном чате
+      for msg in app.get_chat_history(dialog.chat.id):
+        # формируем диалог для GPT
+        if msg.from_user.is_self:
+          if msg.text == None and msg.caption == None:
+            continue
+          content += 'а: ' + msg.caption if msg.text == None else msg.text + '\n'
+        else:
+          if msg.text == None and msg.caption == None:
+            continue
+          content += 'к: ' + msg.caption if msg.text == None else msg.text + '\n'
+      # отправляем запрос к GPT и пишем ответ
+      msgs = [{"role": "system","content": prompt_for_ai_without_conlusion},{"role": "user","content": content}]
+      res = request_to_gpt(msgs)
+      send_message(app, dialog.chat.username, res)
     # если в течении 5 минут мы не написали человеку то пишем
     else:
       if not dialog.top_message.from_user.is_self and delta.total_seconds() // 60 > 5:
+        if msg.text == None and msg.caption == None:
+          continue
         msgs = generate_chat(app, 
                              dialog.top_message.text if dialog.top_message.text != None else dialog.top_message.caption, 
                              dialog.chat.id, 
                              prompt_for_ai, True)
 
         res = request_to_gpt(msgs)
-        for msg in app.get_chat_history(dialog.chat.id, limit = 1):
-          if msg.caption != None and msg.text != dialog.top_message.text: return
-          if msg.text != None and msg.caption != dialog.top_message.caption: return
 
         send_message(app, dialog.chat.username, res)  
 
