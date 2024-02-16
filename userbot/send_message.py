@@ -1,7 +1,7 @@
 from pyrogram import Client
 import os
 from redirect import redirect
-from conclusion_checker import is_conclusion
+from checker import is_conclusion
 
 self_id = int(os.environ['SELF_ID'])
 

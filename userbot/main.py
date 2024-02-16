@@ -4,7 +4,7 @@ import time
 from open_ai_api import request_to_gpt
 from generator_of_msgs import generate_chat
 from send_message import send_message
-from conclusion_checker import is_conclusion
+from checker import is_conclusion, message_to_text
 from constants import prompt_for_ai, prompt_for_ai_without_conlusion
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -38,6 +38,7 @@ def log(client, message):
 # ответ на сообщения
 @app.on_message()
 def log(client, message):
+  print(message)
   # игнорируем свои сообщения (не в фильтре так как ловит сообщения в избранном)
   if message.from_user.is_self: 
     return
@@ -60,7 +61,7 @@ def log(client, message):
   
   # формируем начало диалога с GPT API из системной истории бота
   msgs = generate_chat(app, 
-                       message.text if message.text != None else message.caption if message.caption != None else 'Отправил Вам документы', 
+                       message_to_text(message), 
                        message.chat.id, 
                        prompt_for_ai, True)
 
@@ -93,7 +94,7 @@ def job():
       continue
 
     # напоминаем о себе если человек не отвечает больше 4 часов, но не рассматриваем чаты где последнее сообщение {conclusion}
-    if dialog.top_message.from_user.is_self and not is_conclusion(dialog.top_message.text):
+    if dialog.top_message.from_user.is_self and not is_conclusion(message_to_text(dialog.top_message)):
       if delta.total_seconds() // 3600 < 4:
         continue
       break_flag = False
@@ -110,13 +111,9 @@ def job():
       for msg in app.get_chat_history(dialog.chat.id):
         # формируем диалог для GPT
         if msg.from_user.is_self:
-          if msg.text == None and msg.caption == None:
-            continue
-          content += 'а: ' + msg.caption if msg.text == None else msg.text + '\n'
+          content += 'а: ' + message_to_text(msg) + '\n'
         else:
-          if msg.text == None and msg.caption == None:
-            continue
-          content += 'к: ' + msg.caption if msg.text == None else msg.text + '\n'
+          content += 'к: ' + message_to_text(msg) + '\n'
       # отправляем запрос к GPT и пишем ответ
       msgs = [{"role": "system","content": prompt_for_ai_without_conlusion},{"role": "user","content": content}]
       res = request_to_gpt(msgs)
@@ -124,10 +121,8 @@ def job():
     # если в течении 5 минут мы не написали человеку то пишем
     else:
       if not dialog.top_message.from_user.is_self and delta.total_seconds() // 60 > 5:
-        if msg.text == None and msg.caption == None:
-          continue
         msgs = generate_chat(app, 
-                             dialog.top_message.text if dialog.top_message.text != None else dialog.top_message.caption, 
+                             message_to_text(dialog.top_message), 
                              dialog.chat.id, 
                              prompt_for_ai, True)
 
