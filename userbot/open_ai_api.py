@@ -3,7 +3,6 @@ import os
 from random import randint
 from time import sleep
 from constants import url
-#from secret_constants import openai_key, proxy
 
 openai_key = os.environ['OPENAI_KEY']
 proxy = os.environ['PROXY']

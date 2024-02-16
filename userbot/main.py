@@ -8,7 +8,6 @@ from conclusion_checker import is_conclusion
 from constants import prompt_for_ai, prompt_for_ai_without_conlusion
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-#from secret_constants import api_id, api_hash
 
 api_id = int(os.environ['API_ID'])
 api_hash = os.environ['API_HASH']
