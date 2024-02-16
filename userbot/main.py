@@ -38,7 +38,6 @@ def log(client, message):
 # ответ на сообщения
 @app.on_message()
 def log(client, message):
-  print(message)
   # игнорируем свои сообщения (не в фильтре так как ловит сообщения в избранном)
   if message.from_user.is_self: 
     return
