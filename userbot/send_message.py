@@ -2,15 +2,14 @@ from pyrogram import Client
 import os
 from redirect import redirect
 from conclusion_checker import is_conclusion
-import datetime
 #from secret_constants import self_id
 
 self_id = int(os.environ['SELF_ID'])
 
 # функция парсинга и отправки сообщения от GPT или отправки уведомления Вам о том, что что-то пошло не так, в таком случае сам ответ от GPT отправится в избранные в аккаунте бота
-def send_message(app: Client, username: str, res):
+def send_message(app: Client, username: str, response):
   try:    
-    res = res.json()
+    res = response.json()
     answer = str(res['choices'][0]['message']['content'])
     try:
       # если бот тупой и не понимает чот надо писать по одному вопросу и не нумеровать их (он тупой, так что эта строка нужна)
@@ -20,12 +19,12 @@ def send_message(app: Client, username: str, res):
   except:
     app.send_message(self_id, f'''В чате с @{username} возникла ошибка''')
     try:
-      app.send_message('me', f'''@{username} {datetime.datetime.now()}: {res}''')  
+      app.send_message('me', f'''@{username}: {response.status_code} {res}''')  
     except:
       try:
-        app.send_message('me', f'''@{username} {datetime.datetime.now()}: {str(res.content)}''')  
+        app.send_message('me', f'''@{username}: {str(response.content)}''')  
       except:
-        app.send_message('me', f'''@{username} {datetime.datetime.now()}: 'непредвиденная ошибка''')
+        app.send_message('me', f'''@{username}: 'непредвиденная ошибка''')
   # если бот написал {conclusion} (или как-то его перефразировал), то докладываем Вам об этом
   if is_conclusion(answer):
       redirect(app, username, self_id)

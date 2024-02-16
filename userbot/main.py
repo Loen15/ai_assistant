@@ -1,5 +1,4 @@
 from pyrogram import Client, enums
-from pyrogram.raw import functions
 import os
 import time
 from open_ai_api import request_to_gpt
