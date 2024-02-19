@@ -115,8 +115,9 @@ def job():
           content += 'к: ' + message_to_text(msg) + '\n'
       # отправляем запрос к GPT и пишем ответ
       msgs = [{"role": "system","content": prompt_for_ai_without_conlusion},{"role": "user","content": content}]
-      res = request_to_gpt(msgs)
-      send_message(app, dialog.chat.username, res)
+      response = request_to_gpt(msgs)
+      res = response.json()
+      app.send_message(dialog.chat.username, str(res['choices'][0]['message']['content']).strip('а: '))
     # если в течении 5 минут мы не написали человеку то пишем
     else:
       if not dialog.top_message.from_user.is_self and delta.total_seconds() // 60 > 5:
